@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../config/nodemailer');
 const crypto = require('crypto');
+const _ = require("underscore");
 
 module.exports = {
     sign_Up: async(req, res, next)=> {
@@ -14,12 +15,8 @@ module.exports = {
                 return next(new AppError('A user is already registered with this email', 403));
             }
             const hashed_password = bcrypt.hashSync(req.body.password, 12);
-            const newUser = new Employer({
-                full_name: req.body.name,
-                phone: req.body.phone,
-                email: req.body.email,
-                password: hashed_password
-            });
+            let expected_body = _.pick(req.body,['name','phone','email','password'])
+            const newUser = new Employer(expected_body);
             newUser.save(err=>{
                 if(err){
                     return next(new AppError(err.message, 500));
