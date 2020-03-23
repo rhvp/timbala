@@ -1,29 +1,36 @@
 const Employer = require('../models/employerModel');
+const Employee = require('../models/employeeModel');
 const Token = require('../models/token');
 const AppError = require('../config/apperror');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../config/nodemailer');
 const crypto = require('crypto');
+const Role = require('../models/roles');
 
 module.exports = {
     sign_Up: async(req, res, next)=> {
         try{
+            const employee = await Employee.findOne({email: req.body.email});
             const user = await Employer.findOne({email: req.body.email})
-            if(user){
+            if(user || employee){
                 return next(new AppError('A user is already registered with this email', 403));
             }
             const hashed_password = bcrypt.hashSync(req.body.password, 12);
+            const role = await Role.findOne({name: 'basic'});
+            const role_id = role._id;
             const newUser = new Employer({
                 full_name: req.body.name,
                 phone: req.body.phone,
                 email: req.body.email,
-                password: hashed_password
+                password: hashed_password,
+                role: role_id
             });
             newUser.save(err=>{
                 if(err){
                     return next(new AppError(err.message, 500));
                 }
+                console.log(newUser);
                 newUser.password = undefined;
                 res.status(201).json({
                     status: 'success',
@@ -39,14 +46,13 @@ module.exports = {
 
     login: async(req, res, next)=>{
         try{
-            const user = await Employer.findOne({email: req.body.email});
+            const user = await Employer.findOne({email: req.body.email}).populate('role');
             if(!user){
                 return next(new AppError('User with provided email does not exist', 404))
             }
             const correctPassword = bcrypt.compareSync(req.body.password, user.password);
             if(correctPassword){
-                let id = user._id;
-                const token = jwt.sign({id}, process.env.JWT_SECRET);
+                const token = jwt.sign({user}, process.env.JWT_SECRET);
                 const cookieOptions = {
                     expires: new Date(
                         Date.now() + 60 * 60 * 5
@@ -63,7 +69,7 @@ module.exports = {
                     data: user
                 })
             } else {
-                return next(new AppError(`Wrong password entered for ${user.email}`, 401))
+                return next(new AppError(`Incorrect Email/Password`, 401))
             }
         } catch(err){
             next(err)
@@ -120,4 +126,5 @@ module.exports = {
            return next(new AppError('Error resetting password', 500));
        }
     }
+
 }

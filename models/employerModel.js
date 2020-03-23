@@ -8,6 +8,10 @@ const employerSchema = new mongoose.Schema({
     business_name: {
         type: String
     },
+    role: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'role'
+    },
     phone: {
         type: String,
         required: true,
