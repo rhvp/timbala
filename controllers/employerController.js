@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const sendEmail = require('../config/nodemailer');
 const crypto = require('crypto');
 const Role = require('../models/roles');
+const _ = require("underscore");
 
 module.exports = {
     sign_Up: async(req, res, next)=> {
@@ -19,13 +20,10 @@ module.exports = {
             const hashed_password = bcrypt.hashSync(req.body.password, 12);
             const role = await Role.findOne({name: 'basic'});
             const role_id = role._id;
-            const newUser = new Employer({
-                full_name: req.body.name,
-                phone: req.body.phone,
-                email: req.body.email,
-                password: hashed_password,
-                role: role_id
-            });
+            let expected_body = _.pick(req.body,['name','phone','email','password']);
+            expected_body.password = hashed_password;
+            expected_body.role = role_id;
+            const newUser = new Employer(expected_body);
             newUser.save(err=>{
                 if(err){
                     return next(new AppError(err.message, 500));
