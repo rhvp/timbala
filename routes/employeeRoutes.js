@@ -8,4 +8,10 @@ router.route('/signup')
 router.route('/login')
     .post(employee.login)
 
+router.route('/passwordforget')
+    .post(employee.forgot_Password)
+
+router.route('/resetPassword/:token')
+    .get(employee.reset_Password)
+
 module.exports = router;
