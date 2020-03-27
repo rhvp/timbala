@@ -18,7 +18,7 @@ module.exports = {
                 return next(new AppError('A user is already registered with this email', 403));
             }
             const hashed_password = bcrypt.hashSync(req.body.password, 12);
-            const role = await Role.findOne({name: 'basic'});
+            const role = await Role.findOne({name: 'employer'});
             const role_id = role._id;
             let expected_body = _.pick(req.body,['name','phone','email','password']);
             expected_body.password = hashed_password;
@@ -51,6 +51,7 @@ module.exports = {
             const correctPassword = bcrypt.compareSync(req.body.password, user.password);
             if(correctPassword){
                 const token = jwt.sign({user}, process.env.JWT_SECRET);
+                await Token.create({user_ID: user._id, token: token});
                 const cookieOptions = {
                     expires: new Date(
                         Date.now() + 60 * 60 * 5

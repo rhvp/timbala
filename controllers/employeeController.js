@@ -7,6 +7,7 @@ const sendEmail = require('../config/nodemailer');
 const crypto = require('crypto');
 const Token = require('../models/token');
 const _ = require("underscore");
+const Job = require('../models/jobs');
 
 module.exports = {
     sign_Up: async(req, res, next)=>{
@@ -15,18 +16,21 @@ module.exports = {
             const user = await Employee.findOne({email:req.body.email});
             if(user || employer) return next(new AppError('A user is already registered with this email', 403));
             const hashedPassword = bcrypt.hashSync(req.body.password, 12);
-            let expected_body = _.pick(req.body,['firstname','lastname','phone','email','password']);
+            let expected_body = _.pick(req.body,['firstname','lastname','phone','email','password','job']);
+            
             expected_body.password = hashedPassword;
             const newUser = new Employee(expected_body)
-
+            
             newUser.save(err=>{
                 if(err)return next(new AppError(err.message, 500));
                 newUser.password = undefined;
-                res.status(201).json({
-                    status: 'success',
-                    message: 'User successfully created',
-                    data: {newUser}
-                })
+                Job.updateOne({'title': expected_body.job},{'$push':{'employees': newUser._id}}).then(job=>{
+                    res.status(201).json({
+                        status: 'success',
+                        message: 'User successfully created',
+                        data: {newUser}
+                    })
+                }).catch(next)
             })
         } catch(err){
             next(err)
