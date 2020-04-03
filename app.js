@@ -5,7 +5,8 @@ const employee_routes = require('./routes/employeeRoutes');
 const admin_routes = require('./routes/adminRoutes');
 const AppError = require('./config/apperror');
 const globalErrorHandler = require('./controllers/errorController');
-const job_routes = require('./routes/jobRoutes');
+const profession_routes = require('./routes/professionRoutes');
+const job_routes = require('./routes/jobRoutes')
 
 const app = express();
 app.use(express.json());
@@ -15,7 +16,8 @@ app.options('*', cors());
 app.use('/admin', admin_routes);
 app.use('/employer', employer_routes);
 app.use('/employee', employee_routes);
-app.use(job_routes);
+app.use('/jobs', job_routes);
+app.use(profession_routes);
 
 
 app.use((req, res, next)=>{

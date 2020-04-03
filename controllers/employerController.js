@@ -1,12 +1,14 @@
 const Employer = require('../models/employerModel');
 const Employee = require('../models/employeeModel');
 const Token = require('../models/token');
+const Role = require('../models/roles');
+const Job = require('../models/jobs');
 const AppError = require('../config/apperror');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../config/nodemailer');
 const crypto = require('crypto');
-const Role = require('../models/roles');
+const mongoose = require('mongoose');
 const _ = require("underscore");
 
 module.exports = {
@@ -112,7 +114,7 @@ module.exports = {
     reset_Password: async(req, res, next)=>{
        const token = await Token.findOne({token: req.params.token});
        if(!token){
-           return next(new AppError('token validation error. You may be using an expired token', 403))
+           return next(new AppError('token validation error. You may be using an expired token', 401))
        }
        const id = token.user_ID
        const user = await Employer.findById(id);
@@ -124,6 +126,36 @@ module.exports = {
        } else{
            return next(new AppError('Error resetting password', 500));
        }
-    }
+    },
 
+    get_Employee_Profile: async(req, res, next)=>{
+        const employee = await Employee.findById(req.params.employee_id);
+        if(!employee) return next(new AppError('Requested employee does not exist', 404));
+        employee.password = undefined;
+        res.status(200).json({
+            status: 'success',
+            data: {employee}
+        })
+    },
+
+    shortlist_Employee: async(req, res, next)=>{
+        try {
+            let employee_id = req.body.employee_id;
+            const job = await Job.findById(req.params.job_id);
+            if(!job) return next(new AppError('Requested job no longer exists', 404));
+
+            // Check if employee is already shortlisted
+            const isInArray = job.shortlist.some(doc=>doc.equals(employee_id));
+            if(isInArray) return next(new AppError('Employee has already been shortlisted', 403));
+
+            const id = mongoose.Types.ObjectId(employee_id);
+            await Job.updateOne({'_id': req.params.job_id}, {'$push':{'shortlist': id}});
+            res.status(200).json({
+                status: 'success',
+                message: 'Employee successfully shortlisted'
+            })
+        } catch (error) {
+            next(error)
+        }
+    }
 }

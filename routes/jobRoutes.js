@@ -1,20 +1,17 @@
 const express = require('express'); 
 const router = express.Router();
-const jobController = require('../controllers/jobsController');
+const job = require('../controllers/jobController');
 const auth = require('../config/authorization');
 
+router.route('/my_jobs/:id')
+    .all(auth.employerAuth)
+    .post(job.createJob)
+    .get(job.getEmployerOpenJobs)
 
-router.route('/get_jobs')
-    .get(jobController.getJobs)
+router.get('/my_jobs/:id/:job_id', auth.employerAuth, job.getEmployerSingleJob)
 
-router.route('/get_job/:job_id')
-    .get(jobController.getJob)
+router.get('/open', job.get_open_jobs)
 
-    
-router.use(auth.adminAuth);
-router.route('/create_job')
-    .post(jobController.createJob)
+router.post('/apply/:employee_id/:job_id',auth.employeeAuth, job.apply_for_job)
 
-
-
-module.exports = router
+module.exports = router;

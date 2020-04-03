@@ -1,17 +1,17 @@
 const express = require('express');
 const employee = require('../controllers/employeeController')
 const router = express.Router();
+const auth = require('../config/authorization');
 
-router.route('/signup')
-    .post(employee.sign_Up)
+router.post('/signup', employee.sign_Up)
 
-router.route('/login')
-    .post(employee.login)
+router.post('/login', employee.login)
 
-router.route('/passwordforget')
-    .post(employee.forgot_Password)
+router.post('/passwordforget', employee.forgot_Password)
 
-router.route('/resetPassword/:token')
-    .get(employee.reset_Password)
+router.get('/resetPassword/:token', employee.reset_Password)
+
+router.use(auth.employeeAuth)
+
 
 module.exports = router;

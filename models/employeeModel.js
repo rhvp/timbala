@@ -9,6 +9,10 @@ const employeeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    role: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'role'
+    },
     email: {
         type: String,
         required: true
@@ -21,11 +25,26 @@ const employeeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    job: {
+    profession: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'job',
+        ref: 'profession',
         required: true
-    }
+    },
+    skills: {
+        type: String
+    },
+    experience:{
+        type: String
+    },
+    location: {
+        type: String
+    },
+    jobsApplied: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'jobs'
+        }
+    ]
 })
 
 module.exports = mongoose.model('employee', employeeSchema);

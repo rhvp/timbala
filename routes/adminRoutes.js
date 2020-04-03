@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../config/authorization');
 const admin = require('../controllers/adminController');
-const jobs = require('../controllers/jobsController');
 
 router.use(auth.adminAuth);
 router.route('/')

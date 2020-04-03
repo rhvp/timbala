@@ -1,26 +1,24 @@
 const express = require('express'); 
 const router = express.Router();
-const employerController = require('../controllers/employerController');
+const employer = require('../controllers/employerController');
 const auth = require('../config/authorization');
 
 
 
-router.route('/signup')
-    .post(employerController.sign_Up)
+router.post('/signup', employer.sign_Up)
 
-router.route('/login')
-    .post(employerController.login)
+router.post('/login', employer.login)
 
-router.route('/passwordforget')
-    .post(employerController.forgot_Password)
+router.post('/passwordforget', employer.forgot_Password)
 
-router.route('/resetPassword/:token')
-    .get(employerController.reset_Password)
+router.get('/resetPassword/:token', employer.reset_Password)
 
-router.use( auth.employerAuth);
+router.use(auth.employerAuth);
 
 router.route('/profile/:id')
     .get()
     .post()
 
+router.get('/get_employee/:employee_id', employer.get_Employee_Profile) // Test and update docs
+router.post('/shortlist_employee/:job_id', employer.shortlist_Employee) // Test and update docs
 module.exports = router;
