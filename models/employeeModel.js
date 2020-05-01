@@ -9,6 +9,9 @@ const employeeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    summary: {
+        type: String,
+    },
     role: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'role'
@@ -46,5 +49,5 @@ const employeeSchema = new mongoose.Schema({
         }
     ]
 })
-
+employeeSchema.index({skills: 'text'});
 module.exports = mongoose.model('employee', employeeSchema);

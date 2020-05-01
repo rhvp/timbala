@@ -157,5 +157,17 @@ module.exports = {
         } catch (error) {
             next(error)
         }
+    },
+
+    getEmployeesBySkill: async(req,res,next)=>{
+        try {
+            const response = await Employee.find({$text:{$search: req.params.searchQuery}}).limit(20);
+            res.status(200).json({
+                status: 'success',
+                data: {response}
+            })
+        } catch (error) {
+            next()
+        }
     }
 }

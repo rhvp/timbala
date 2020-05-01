@@ -19,6 +19,7 @@ router.route('/profile/:id')
     .get()
     .post()
 
-router.get('/get_employee/:employee_id', employer.get_Employee_Profile) // Test and update docs
-router.post('/shortlist_employee/:job_id', employer.shortlist_Employee) // Test and update docs
+router.get('/get_employee/:employee_id', employer.get_Employee_Profile) 
+router.post('/shortlist_employee/:job_id', employer.shortlist_Employee)
+router.get('/search/:searchQuery', employer.getEmployeesBySkill)
 module.exports = router;

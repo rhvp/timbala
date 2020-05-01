@@ -19,7 +19,7 @@ module.exports = {
             const user = await Employee.findOne({email:req.body.email});
             if(user || employer) return next(new AppError('A user is already registered with this email', 403));
             const hashedPassword = bcrypt.hashSync(req.body.password, 12);
-            let expected_body = _.pick(req.body,['firstname','lastname','phone','email','password','profession']);
+            let expected_body = _.pick(req.body,['firstname','lastname','phone','email','password','profession','skills']);
             const role = Role.findOne({name: 'basic'});
             let role_id = role._id;
             expected_body.role = role_id;
@@ -29,13 +29,13 @@ module.exports = {
             newUser.save(err=>{
                 if(err)return next(new AppError(err.message, 500));
                 newUser.password = undefined;
-                Profession.updateOne({'title': expected_body.profession},{'$push':{'employees': newUser._id}}).then(profession=>{
+                
                     res.status(201).json({
                         status: 'success',
                         message: 'User successfully created',
                         data: {newUser}
                     })
-                }).catch(next)
+                
             })
         } catch(err){
             next(err)
